@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Online Shopping Data Analysis</title>
+<style>
+:root{--bg:#f3f6fa;--card:#fff;--text:#1d2733;--muted:#5b6775;--accent:#2e5c8a;--grid:#e1e6ec;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12171d;--card:#1b222b;--text:#e8edf2;--muted:#9aa6b3;--accent:#6aa6e0;--grid:#2c3641;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12171d;--card:#1b222b;--text:#e8edf2;--muted:#9aa6b3;--accent:#6aa6e0;--grid:#2c3641;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Calibri,"Segoe UI",Arial,sans-serif;line-height:1.5}
+main{max-width:900px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;margin:8px 0 4px}
+.sub{color:var(--muted);margin:0 0 14px}
+.card,.stat{background:var(--card);border-radius:12px;padding:14px 16px}
+.card{margin-bottom:16px}
+.card h2{font-size:1.1rem;margin:0 0 8px}
+.card p,.note{color:var(--muted);margin:8px 0 0;font-size:.95rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.stat b{display:block;font-size:1.4rem;color:var(--accent)}
+.stat span{color:var(--muted);font-size:.9rem}
+.box{position:relative;height:260px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+select,input[type=file]{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--grid);border-radius:8px;padding:8px}
+select:disabled{opacity:.5}
+label{color:var(--muted);font-size:.9rem}
+.hide{display:none}
+#msg{color:var(--accent);font-size:.95rem;margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>Online Shopping Data Analysis</h1>
+<p class="sub">Mini project · 2019 transactions · Python (Pandas, Matplotlib)</p>
+
+<div class="card">
+<h2>Load your dataset</h2>
+<div class="bar"><input type="file" id="f" accept=".csv"></div>
+<p class="note">Choose your file.csv to unlock coupon, gender, product and order charts plus filters. The file is read inside your browser only and is never uploaded anywhere.</p>
+<div id="msg" role="status"></div>
+</div>
+
+<div class="card"><h2>Price Comparison</h2>
+<div class="bar"><input type="file" id="pf" accept=".csv"></div>
+<p class="note">Choose price_history.csv saved by the price tool in Colab. This page cannot fetch live prices itself, so the tool saves them to that file.</p>
+<div id="pmsg" role="status" style="color:var(--accent);margin-top:8px"></div>
+<div class="hide" id="pbox">
+<div class="bar" style="margin:10px 0"><label for="pp">Product</label><select id="pp" style="max-width:100%"></select></div>
+<div class="box"><canvas id="p1" role="img" aria-label="Seller price comparison"></canvas></div>
+<p id="ps"></p>
+<div class="box"><canvas id="p2" role="img" aria-label="Lowest price over time"></canvas></div>
+</div></div>
+
+<div class="pre">
+<div class="card"><div class="bar">
+<label for="fm">Month</label><select id="fm" disabled><option value="all">All months</option></select>
+<label for="fl">Location</label><select id="fl" disabled><option value="all">All locations</option></select>
+</div></div>
+
+<div class="stats">
+<div class="stat"><b id="k1">52,924</b><span>Rows</span></div>
+<div class="stat"><b id="k2">4.67M</b><span>Total revenue</span></div>
+<div class="stat"><b id="k3">186.38</b><span>Average order value</span></div>
+</div>
+
+<div class="card"><h2>Top 5 Categories (Revenue)</h2><div class="box"><canvas id="c1" role="img" aria-label="Top 5 categories"></canvas></div></div>
+<div class="card"><h2>Monthly Revenue</h2><div class="box"><canvas id="c2" role="img" aria-label="Monthly revenue"></canvas></div></div>
+<div class="card"><h2>Top 5 Locations (Revenue)</h2><div class="box"><canvas id="c3" role="img" aria-label="Top 5 locations"></canvas></div></div>
+
+<div class="ext hide">
+<div class="grid2">
+<div class="card"><h2>Coupon status (orders)</h2><div class="box"><canvas id="c4" role="img" aria-label="Coupon status"></canvas></div></div>
+<div class="card"><h2>Revenue by gender</h2><div class="box"><canvas id="c5" role="img" aria-label="Revenue by gender"></canvas></div></div>
+</div>
+<div class="card"><h2>Top 5 Products (Revenue)</h2><div class="box"><canvas id="c6" role="img" aria-label="Top 5 products"></canvas></div></div>
+<div class="card"><h2>Orders per Month</h2><div class="box"><canvas id="c7" role="img" aria-label="Orders per month"></canvas></div></div>
+<div class="card"><h2>Price History</h2><div class="bar"><label for="fp">Product</label><select id="fp" style="max-width:100%"></select></div><div class="box"><canvas id="c8" role="img" aria-label="Price history of selected product"></canvas></div><p id="ph"></p></div>
+</div>
+
+<div class="card"><h2>Conclusion</h2>
+<ul>
+<li>Prioritize stock and marketing for Nest-USA.</li>
+<li>Plan inventory and offers in advance for November and December.</li>
+<li>Run discount campaigns in May and June.</li>
+<li>Focus delivery and advertising on Chicago and California.</li>
+<li>Increase average order value with free delivery or combo offers.</li>
+</ul>
+<p>Limitations: the maximum Quantity is 900 (a possible outlier), and the data covers 2019 only.</p></div>
+</div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+(function(){
+var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var cs=getComputedStyle(document.documentElement);
+var accent=cs.getPropertyValue("--accent").trim(),muted=cs.getPropertyValue("--muted").trim(),grid=cs.getPropertyValue("--grid").trim();
+var PAL=[accent,"#e08a3c","#58a06a","#b565a7","#d0b030"];
+var $=function(i){return document.getElementById(i);};
+var fmt=function(v){return Number(v).toLocaleString("en-US",{maximumFractionDigits:0});};
+var charts={},rows=null;
+if(typeof Chart!=="undefined"){Chart.defaults.color=muted;Chart.defaults.font.family="Calibri, Segoe UI, Arial, sans-serif";}
+
+function draw(id,type,labels,data,horiz){
+  if(typeof Chart==="undefined"){return;}
+  if(charts[id]){charts[id].destroy();}
+  var round=type==="doughnut";
+  var opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:round},tooltip:{callbacks:{label:function(c){var v=round?c.parsed:(horiz?c.parsed.x:c.parsed.y);return fmt(v);}}}}};
+  if(!round){
+    opts.indexAxis=horiz?"y":"x";
+    opts.scales={x:{grid:{display:horiz?true:false,color:grid},ticks:horiz?{callback:fmt}:{}},y:{grid:{color:horiz?"transparent":grid},ticks:horiz?{}:{callback:fmt}}};
+  }
+  charts[id]=new Chart($(id),{type:type,data:{labels:labels,datasets:[{label:"Value",data:data,backgroundColor:round?PAL:accent,borderColor:round?"transparent":accent,borderWidth:2,tension:.25,pointRadius:type==="line"?4:0}]},options:opts});
+}
+
+function sumBy(list,keyFn,valFn){var m={};list.forEach(function(r){var k=keyFn(r);m[k]=(m[k]||0)+valFn(r);});return m;}
+function top(m,n){return Object.keys(m).sort(function(a,b){return m[b]-m[a];}).slice(0,n);}
+function rev(r){return r.Quantity*r.Avg_Price;}
+
+// Baseline charts from the analysis done earlier in Colab
+draw("c1","bar",["Nest-USA","Apparel","Nest","Office","Drinkware"],[2554202,591146,518194,276794,200708]);
+draw("c2","line",MN,[403625,310820,349608,401618,307763,321081,372638,401210,360548,409681,508943,523258]);
+draw("c3","bar",["Chicago","California","New York","New Jersey","Washington DC"],[1625886,1442447,937023,409667,255772]);
+
+function render(){
+  var m=$("fm").value,l=$("fl").value;
+  var all=rows;
+  var f=all.filter(function(r){return (m==="all"||r.Month==m)&&(l==="all"||r.Location===l);});
+  var fLoc=all.filter(function(r){return l==="all"||r.Location===l;});
+  var fMon=all.filter(function(r){return m==="all"||r.Month==m;});
+  var total=f.reduce(function(a,r){return a+rev(r);},0);
+  var orders=sumBy(f,function(r){return r.Transaction_ID;},rev);
+  var nOrd=Object.keys(orders).length;
+  $("k1").textContent=fmt(f.length);
+  $("k2").textContent=fmt(total);
+  $("k3").textContent=nOrd?(total/nOrd).toFixed(2):"0";
+  var cat=sumBy(f,function(r){return r.Product_Category;},rev),ck=top(cat,5);
+  draw("c1","bar",ck,ck.map(function(k){return Math.round(cat[k]);}));
+  var mo=sumBy(fLoc,function(r){return r.Month;},rev);
+  draw("c2","line",MN,MN.map(function(_,i){return Math.round(mo[i+1]||0);}));
+  var lo=sumBy(fMon,function(r){return r.Location;},rev),lk=top(lo,5);
+  draw("c3","bar",lk,lk.map(function(k){return Math.round(lo[k]);}));
+  var cp=sumBy(f,function(r){return r.Coupon_Status;},function(){return 1;}),cpk=Object.keys(cp);
+  draw("c4","doughnut",cpk,cpk.map(function(k){return cp[k];}));
+  var ge=sumBy(f,function(r){return r.Gender==="M"?"Male":(r.Gender==="F"?"Female":r.Gender);},rev),gk=Object.keys(ge);
+  draw("c5","doughnut",gk,gk.map(function(k){return Math.round(ge[k]);}));
+  var pr=sumBy(f,function(r){return r.Product_Description;},rev),pk=top(pr,5);
+  draw("c6","bar",pk.map(function(k){return k.length>30?k.slice(0,29)+"…":k;}),pk.map(function(k){return Math.round(pr[k]);}),true);
+  var seen={};
+  fLoc.forEach(function(r){seen[r.Month]=seen[r.Month]||{};seen[r.Month][r.Transaction_ID]=1;});
+  draw("c7","bar",MN,MN.map(function(_,i){return seen[i+1]?Object.keys(seen[i+1]).length:0;}));
+  price();
+}
+
+function price(){
+  if(!rows||typeof Chart==="undefined"){return;}
+  var p=$("fp").value;if(!p){return;}
+  var l=$("fl").value,s={},n={};
+  rows.forEach(function(r){if(r.Product_Description===p&&(l==="all"||r.Location===l)){s[r.Month]=(s[r.Month]||0)+r.Avg_Price;n[r.Month]=(n[r.Month]||0)+1;}});
+  var data=MN.map(function(_,i){return n[i+1]?+(s[i+1]/n[i+1]).toFixed(2):null;});
+  var vals=data.filter(function(v){return v!==null;});
+  if(charts.c8){charts.c8.destroy();}
+  charts.c8=new Chart($("c8"),{type:"line",data:{labels:MN,datasets:[{label:"Avg price",data:data,borderColor:accent,backgroundColor:accent,borderWidth:2,tension:.2,pointRadius:4,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y===null?"":c.parsed.y.toFixed(2);}}}},scales:{x:{grid:{display:false}},y:{grid:{color:grid}}}}});
+  if(!vals.length){$("ph").textContent="No sales found for this product with the current location filter.";return;}
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);
+  $("ph").textContent="Lowest average price: "+lo.toFixed(2)+" ("+MN[data.indexOf(lo)]+"). Highest: "+hi.toFixed(2)+" ("+MN[data.indexOf(hi)]+"). Latest: "+vals[vals.length-1].toFixed(2)+".";
+}
+
+function load(file){
+  $("msg").textContent="Reading file…";
+  Papa.parse(file,{header:true,dynamicTyping:true,skipEmptyLines:true,complete:function(res){
+    var seen={},out=[];
+    res.data.forEach(function(r){
+      if(r.CustomerID==null||r.Quantity==null||r.Avg_Price==null){return;}
+      var key=[r.CustomerID,r.Transaction_ID,r.Product_SKU,r.Quantity,r.Avg_Price,r.Transaction_Date,r.Coupon_Status].join("|");
+      if(seen[key]){return;}seen[key]=1;
+      var d=new Date(r.Transaction_Date);
+      if(!isNaN(d)){r.Month=d.getMonth()+1;}
+      out.push(r);
+    });
+    if(!out.length||!("Avg_Price" in res.data[0])){$("msg").textContent="This file does not look like the expected dataset. Please choose file.csv.";return;}
+    rows=out;
+    var locs=Object.keys(sumBy(rows,function(r){return r.Location;},function(){return 1;})).sort();
+    $("fm").innerHTML='<option value="all">All months</option>'+MN.map(function(n,i){return '<option value="'+(i+1)+'">'+n+'</option>';}).join("");
+    $("fl").innerHTML='<option value="all">All locations</option>'+locs.map(function(n){return '<option>'+n+'</option>';}).join("");
+    var pm=sumBy(rows,function(r){return r.Product_Description;},rev),pk=top(pm,30);
+    $("fp").innerHTML=pk.map(function(k){return '<option value="'+k.replace(/"/g,"&quot;")+'">'+(k.length>45?k.slice(0,44)+"…":k)+'</option>';}).join("");
+    $("fm").disabled=false;$("fl").disabled=false;
+    document.querySelector(".pre").classList.remove("hide");document.querySelector(".ext").classList.remove("hide");
+    $("msg").textContent="Loaded "+fmt(rows.length)+" rows. Use the filters above.";
+    render();
+  },error:function(){$("msg").textContent="Could not read the file.";}});
+}
+var pr=null;
+function med(a){a=a.slice().sort(function(x,y){return x-y;});var m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;}
+function pdraw(){
+  var p=$("pp").value;
+  var rs=pr.filter(function(r){return r.product===p&&typeof r.price==="number";});
+  var days={};rs.forEach(function(r){(days[r.date]=days[r.date]||[]).push(r);});
+  var dk=Object.keys(days).sort();
+  var mins=dk.map(function(d){var cut=3*med(days[d].map(function(r){return r.price;}));return Math.min.apply(null,days[d].filter(function(r){return r.price<cut;}).map(function(r){return r.price;}));});
+  var last=dk[dk.length-1],cut=3*med(days[last].map(function(r){return r.price;})),b={};
+  days[last].forEach(function(r){if(r.price<cut&&(!(r.seller in b)||r.price<b[r.seller])){b[r.seller]=r.price;}});
+  var ks=Object.keys(b).sort(function(x,y){return b[x]-b[y];});
+  draw("p1","bar",ks,ks.map(function(k){return b[k];}),true);
+  draw("p2","line",dk,mins);
+  $("ps").textContent=ks.length?"Latest data: "+last+". Cheapest: "+ks[0]+" ("+fmt(b[ks[0]])+"). Highest: "+ks[ks.length-1]+" ("+fmt(b[ks[ks.length-1]])+"). Outlier prices above 3 times the median are left out.":"";
+}
+function pload(file){
+  $("pmsg").textContent="Reading file…";
+  Papa.parse(file,{header:true,dynamicTyping:true,skipEmptyLines:true,complete:function(res){
+    var d=res.data.filter(function(r){return r.product&&r.seller&&typeof r.price==="number";});
+    if(!d.length){$("pmsg").textContent="This does not look like price_history.csv (needs date, product, seller, price).";return;}
+    pr=d;
+    var seen={};d.forEach(function(r){seen[r.product]=1;});
+    $("pp").innerHTML=Object.keys(seen).map(function(k){return '<option value="'+k.replace(/"/g,"&quot;")+'">'+k+'</option>';}).join("");
+    $("pbox").classList.remove("hide");
+    $("pmsg").textContent="Loaded "+d.length+" price records.";
+    pdraw();
+  },error:function(){$("pmsg").textContent="Could not read the file.";}});
+}
+$("pf").addEventListener("change",function(e){if(e.target.files[0]){pload(e.target.files[0]);}});
+$("pp").addEventListener("change",function(){if(pr){pdraw();}});
+$("f").addEventListener("change",function(e){if(e.target.files[0]){load(e.target.files[0]);}});
+$("fm").addEventListener("change",function(){if(rows){render();}});
+$("fp").addEventListener("change",price);
+$("fl").addEventListener("change",function(){if(rows){render();}});
+})();
+</script>
+</body>
+</html>
